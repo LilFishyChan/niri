@@ -2918,6 +2918,7 @@ impl State {
                 && mod_down
                 && !self.niri.is_locked()
                 && !self.niri.screenshot_ui.is_open()
+                && !self.is_inhibiting_shortcuts()
             {
                 let output_ws = if is_overview_open {
                     self.niri.workspace_under_cursor(true)
@@ -2961,7 +2962,7 @@ impl State {
 
                 // Check if we need to start an interactive move.
                 if button == Some(MouseButton::Left) && !pointer.is_grabbed() {
-                    if is_overview_open || mod_down {
+                    if is_overview_open || (mod_down && !self.is_inhibiting_shortcuts()) {
                         let location = pointer.current_location();
 
                         if !is_overview_open {
@@ -2994,7 +2995,11 @@ impl State {
                     }
                 }
                 // Check if we need to start an interactive resize.
-                else if button == Some(MouseButton::Right) && !pointer.is_grabbed() && mod_down {
+                else if button == Some(MouseButton::Right)
+                    && !pointer.is_grabbed()
+                    && mod_down
+                    && !self.is_inhibiting_shortcuts()
+                {
                     let location = pointer.current_location();
                     let (output, pos_within_output) = self.niri.output_under(location).unwrap();
                     let edges = self
